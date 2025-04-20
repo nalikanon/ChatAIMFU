@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  db:
+    image: mongo
+    container_name: mfulearnai
+    ports:
+      - 27017:27017
+    volumes:
+      - data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=1234
+    restart: always
+    networks:
+      - mfulearnai
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+      - 5001:5001
+    environment:
+      - MONGODB_URI=mongodb://root:1234@db:27017/mfu_chatbot?authSource=admin
+      - CHROMA_URL=http://chroma:8000
+      - WS_PORT=5001
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+    depends_on:
+      chroma:
+        condition: service_healthy
+      db:
+        condition: service_started
+    networks:
+      - mfulearnai
+    restart: unless-stopped
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - 3000:80
+    depends_on:
+      - backend
+    networks:
+      - mfulearnai
+    restart: unless-stopped
+
+  nginx:
+    build: ./nginx/
+    image: nginx:alpine
+    ports:
+      - 80:80
+    depends_on:
+      - frontend
+    networks:
+      - mfulearnai
+    restart: unless-stopped
+
+  chroma:
+    image: chromadb/chroma
+    container_name: chromadb
+    ports:
+      - "8000:8000"
+    environment:
+      - CHROMA_SERVER_CORS_ALLOW_ORIGINS=["*"]
+      - CHROMA_SERVER_HOST=0.0.0.0
+      - CHROMA_SERVER_PORT=8000
+    volumes:
+      - chroma:/chroma/chroma
+    networks:
+      - mfulearnai
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+      timeout: 600s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  data:
+  chroma:
+
+networks:
+  mfulearnai:
+    driver: bridge
