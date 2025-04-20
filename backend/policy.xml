@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policymap [
+  <!ELEMENT policymap (policy)*>
+  <!ELEMENT policy (#PCDATA)>
+  <!ATTLIST policy domain (delegate|coder|filter|path|resource) #IMPLIED>
+  <!ATTLIST policy name CDATA #IMPLIED>
+  <!ATTLIST policy rights CDATA #IMPLIED>
+  <!ATTLIST policy pattern CDATA #IMPLIED>
+  <!ATTLIST policy value CDATA #IMPLIED>
+]>
+<policymap>
+  <policy domain="coder" rights="read|write" pattern="PDF" />
+  <policy domain="coder" rights="read|write" pattern="LABEL" />
+  <policy domain="coder" rights="read|write" pattern="PNG" />
+  <policy domain="coder" rights="read|write" pattern="JPEG" />
+  <policy domain="coder" rights="read|write" pattern="GIF" />
+  <policy domain="coder" rights="read|write" pattern="BMP" />
+  <policy domain="coder" rights="read|write" pattern="TIFF" />
+  <policy domain="delegate" rights="read|write" pattern="gs" />
+  <policy domain="delegate" rights="read|write" pattern="ghostscript" />
+  <policy domain="coder" rights="read|write" pattern="PS" />
+  <policy domain="coder" rights="read|write" pattern="PS2" />
+  <policy domain="coder" rights="read|write" pattern="PS3" />
+  <policy domain="coder" rights="read|write" pattern="EPS" />
+  <policy domain="resource" name="memory" value="256MiB"/>
+  <policy domain="resource" name="map" value="512MiB"/>
+  <policy domain="resource" name="width" value="16KP"/>
+  <policy domain="resource" name="height" value="16KP"/>
+  <policy domain="resource" name="area" value="128MB"/>
+  <policy domain="resource" name="disk" value="1GiB"/>
+</policymap> 
